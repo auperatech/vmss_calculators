@@ -1,0 +1,121 @@
+control_port: 51881
+graph_input: "graph_input"
+graph_output: "graph_output"
+ 
+node {
+  calculator: "video_source"
+  name: "source"
+  graph_input: "graph_input"
+  output_stream: "bgr"
+  output_stream: "bgr_infopacket"
+  output_stream: "nv12"
+  output_stream: "nv12_infopacket"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoSourceOptions]: {
+      # path: "rtsp://vmss.auperatechnologies.com:554/car"
+    }
+  }
+}
+ 
+node {
+  calculator: "box_detector"
+  name: "box_detector"
+  input_stream: "bgr"
+  output_stream: "detections"
+  output_stream: "detect_interval"
+  ml_model_kernel_name: "ssd_pedestrian_pruned_0_97"
+  node_options: {
+    [type.googleapis.com/aup.avaf.BoxDetectorOptions]: {
+      detect_interval: 1
+      detector_type: "SSD"
+      need_preprocess: true
+      log_performance: false
+      run_on_letterboxed_img: false
+      batch_size: 1
+      return_frames_inorder: true 
+      batch_collection_timeout_ms: 0
+      ignore_black_frames: false
+      max_detection_lib_q_size: 30
+      mean: {
+        r: 125.319099
+        g: 123.484794
+        b: 120.935805
+      }
+      scale: {
+        ch1: 1
+        ch2: 1
+        ch3: 1
+      }
+      total_classes: 4
+      default_confidence_threshold: 0.5
+    }
+  }
+}
+
+node {
+  calculator: "box_visualizer"
+  name: "visualizer_nv12"
+  input_stream: "detections"
+  input_stream: "nv12"
+  output_stream: "nv12_viz"
+  node_options: {
+    [type.googleapis.com/aup.avaf.BoxVisualizerOptions]: {
+      text_color: {
+        r: 255
+        g: 0
+        b: 0
+      }
+      box_color: {
+        r: 255
+        g: 0
+        b: 0
+      }
+      class_color: {
+        label: 1
+        color: {
+          r: 0
+          g: 0
+          b: 0
+        }
+      }
+      class_color: {
+        label: 2
+        color: {
+          r: 0
+          g: 255
+          b: 0
+        }
+      }
+      text_offset: {
+        x: 0
+        y: 0
+      }
+      font: 1
+      line_type: 0
+      box_thickness: 5
+      text_size: 2
+      render_on_nv12: true
+      ttf_file_path_for_nv12: "./"
+      input_type: 0
+    }
+  }
+}
+
+node {
+  calculator: "video_sink"
+  name: "sink"
+  input_stream: "nv12_viz"
+  input_stream: "nv12_infopacket"
+  graph_output: "graph_output"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoSinkOptions]: {
+      codec_type: CODEC_TYPE_H264
+      bframes: 0
+      gop_size: 60
+      gop_mode: "low-latency-P"
+      bitrate: 3000
+      rc_mode: "Low Latency"
+      # path: "rtsp://vmss.auperatechnologies.com:554/car_out_test"
+    }
+  }
+}

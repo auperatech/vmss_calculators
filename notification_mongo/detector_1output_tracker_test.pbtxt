@@ -1,0 +1,30 @@
+control_port: 51881
+input_stream: "inStream1"
+
+node {
+  name: "json_stream_node"
+  calculator: "json_stream"
+  input_stream: "inStream1"
+  output_stream: "jsonStream"
+  node_options: {
+    [type.googleapis.com/aup.avaf.JsonStreamOptions]: {
+      interval_us: 1000
+      directory: "/home/software/amanda_test/ai_frame_notification/ai_framework/calculators/json_stream/json_paths"
+      loop_over: false
+    }
+  }
+}
+
+node {
+  name: "notification_mongo_node"
+  calculator: "notification_mongo"
+  input_stream: "jsonStream"
+  node_options: {
+    [type.googleapis.com/aup.avaf.NotificationMongoOptions]: {
+      mongodb_address: "mongodb://184.105.10.253:27019"
+      database_name: "test_db_1"
+      collection_name: "test_collection_1"
+      print_all_sessions: true
+    }
+  }
+}

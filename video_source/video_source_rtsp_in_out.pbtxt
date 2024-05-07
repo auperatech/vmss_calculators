@@ -1,0 +1,69 @@
+# The recommended video for this pipeline is car.
+
+control_port: 51881
+
+node {
+  name: "video_source"
+  calculator: "video_source"
+  vendor: "Aupera"
+  output_stream: "image_stream"
+  output_stream: "video_stream_info"
+  output_stream: "nv12_dangle"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoSourceOptions]: {
+      path: "rtsp://vmss.auperatechnologies.com:554/car"
+    }
+  }
+}
+
+node {
+  name: "vfilter_node"
+  calculator: "ff_vfilter"
+  input_stream: "image_stream"
+  input_stream: "video_stream_info"
+  output_stream: "image_stream_vfilter"
+  output_stream: "video_stream_info_vfilter"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoFilterOptions]: {
+      opixfmt: PIXFMT_I420
+      # ow: 960
+      # oh: 540
+      # ofps: 12
+    }
+  }
+}
+
+node {
+  name: "encode_node"
+  calculator: "x86_enc"
+  vendor: "Aupera"
+  input_stream: "image_stream_vfilter"
+  input_stream: "video_stream_info_vfilter"
+  output_stream: "packet_stream_encode"
+  output_stream: "codec_context_stream"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoCodecOptions]: {
+     enc: {
+       codec_type: CODEC_TYPE_H264
+       fps: 12
+       bitrate: 100
+     }
+    }
+  }
+}
+
+node {
+  name: "mux_node"
+  calculator: "stream_mux"
+  input_stream: "packet_stream_encode"
+  input_stream: "codec_context_stream"
+  node_options: {
+    [type.googleapis.com/aup.avaf.StreamMuxOptions]: {
+     mux: {
+       rtsp_transport: "tcp"
+       auto_reconnect: true
+       output_url: "rtsp://vmss.auperatechnologies.com:554/car-som-out-your-name"
+     }
+    }
+  }
+}

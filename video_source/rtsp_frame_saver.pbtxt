@@ -1,0 +1,47 @@
+control_port: 51881
+
+node {
+  calculator: "video_source"
+  name: "source"
+  output_stream: "bgr"
+  output_stream: "dangle"
+  output_stream: "nv12"
+  output_stream: "dangle2"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoSourceOptions]: {
+      path: "rtsp://vmss.auperatechnologies.com:554/car"
+      # path: "/home/ubuntu/Sample_FaceDetect.nv12.h264"
+      # path: "/home/ubuntu/Sample_FaceDetect.nv12.h265"
+    }
+  }
+}
+
+node {
+  calculator: "frame_saver"
+  name: "bgr"
+  input_stream: "bgr"
+  node_options: {
+    [type.googleapis.com/aup.avaf.FrameSaverOptions]: {
+      directory: "/tmp/saved/bgr/"
+      save_limit: 10
+      save_offset: 100
+      save_skip: 99
+      directory_cleanup: true
+    }
+  }
+}
+
+node {
+  calculator: "frame_saver"
+  name: "nv12"
+  input_stream: "nv12"
+  node_options: {
+    [type.googleapis.com/aup.avaf.FrameSaverOptions]: {
+      directory: "/tmp/saved/nv12/"
+      save_limit: 10
+      save_offset: 100
+      save_skip: 99
+      directory_cleanup: true
+    }
+  }
+}

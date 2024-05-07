@@ -1,0 +1,26 @@
+control_port: 51881
+
+node {
+  name: "usb_cam"
+  calculator: "video_source"
+  output_stream: "image_stream_decode"
+  output_stream: "video_stream_info_decode"
+  node_options: {
+    [type.googleapis.com/aup.avaf.VideoSourceOptions]: {
+    }
+  }
+}
+
+node {
+  name: "frame_saver"
+  calculator: "frame_saver"
+  input_stream: "image_stream_decode"
+  node_options: {
+    [type.googleapis.com/aup.avaf.FrameSaverOptions]: {
+      directory: "/home/ubuntu/saved_frames/"
+      directory_cleanup: true
+      save_limit: 1
+      save_offset: 100
+    }
+  }
+}
