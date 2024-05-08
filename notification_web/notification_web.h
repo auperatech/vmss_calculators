@@ -8,7 +8,7 @@
 #include "aup/avaf/calculator.h"
 #include "aup/avaf/packets/json_packet.h"
 #include "aup/avap/notification_web.pb.h"
-#include "../../avas/dependencies/cpp-httplib/httplib.h"
+#include "httplib.h"
 #include <arpa/inet.h>
 #include <sys/socket.h> // socket
 #include <thread>
